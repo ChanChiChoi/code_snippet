@@ -159,6 +159,7 @@ void genData(thrust::host_vector<Real> &h_data, int nVec, Real xVar){
       h_data.push_back(dat[j]+xVar*f_rand());
 }
 
+// important part
 template<typename Real>
 void testTraining(){
   ObjFunc<Real> testObj;
@@ -222,7 +223,7 @@ void testTraining(){
     cout<<setprecision(1)<<setw(4)
         <<h_out[0]<<" "
         <<h_test[index]<<endl;
-    index++
+    index++;
   }
   
 }
