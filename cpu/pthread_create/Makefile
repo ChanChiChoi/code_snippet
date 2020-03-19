@@ -2,12 +2,11 @@ CC = gcc
 CFLAGS = -g -Wall
 LDFLAGS = -lpthread
 
-OBJECT = pthread_create pthread_exit
+TARGETS = pthread_create pthread_exit
 
-all:$(OBJECT)
+all:$(TARGETS)
 
-
-$(OBJECT):$(addsuffix .o,$(OBJECT))
+%:%.o
 	$(CC) $(LDFLAGS) $< -o $@
 
 %.o: %.c
@@ -15,4 +14,4 @@ $(OBJECT):$(addsuffix .o,$(OBJECT))
 
 clean:
 	rm -f *.o
-	rm -f $(OBJECT)
+	rm -f $(TARGETS)
