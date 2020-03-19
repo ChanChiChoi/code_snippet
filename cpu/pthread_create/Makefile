@@ -2,12 +2,17 @@ CC = gcc
 CFLAGS = -g -Wall
 LDFLAGS = -lpthread
 
-main:pthread_create.o
-	$(CC) $(LDFLAGS) $^ -o $@
+OBJECT = pthread_create pthread_exit
 
-pthread_create.o: pthread_create.c
-	$(CC) $(CFLAGS) -c $^ -o $@
+all:$(OBJECT)
+
+
+$(OBJECT):$(addsuffix .o,$(OBJECT))
+	$(CC) $(LDFLAGS) $< -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f pthread_create.o
-	rm -f main
+	rm -f *.o
+	rm -f $(OBJECT)
