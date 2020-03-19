@@ -22,5 +22,6 @@ int main(int argc, char *argv[]){
     printf("could not join thread\n");
     return -1;
   }
+  printf("end\n");
   return 0;
 }
