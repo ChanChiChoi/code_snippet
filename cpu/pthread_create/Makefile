@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -Wall
 LDFLAGS = -lpthread
 
-TARGETS = pthread_create pthread_exit pthread_mutex
+TARGETS = pthread_create pthread_exit pthread_mutex pthread_semaphores
 OBJECTS = $(addsuffix .o,$(TARGETS))
 
 all:$(TARGETS)
