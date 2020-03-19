@@ -3,10 +3,11 @@ CFLAGS = -g -Wall
 LDFLAGS = -lpthread
 
 TARGETS = pthread_create pthread_exit
+OBJECTS = $(addsuffix .o,$(TARGETS))
 
 all:$(TARGETS)
 
-%:%.o
+$(TARGETS):%:%.o
 	$(CC) $(LDFLAGS) $< -o $@
 
 %.o: %.c
