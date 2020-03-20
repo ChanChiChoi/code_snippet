@@ -187,7 +187,7 @@ int main(int argc, char *argv[]){
 
     if(gpu_p2p_count >= 2){
       for(int i=0;i<gpu_p2p_count;i++){
-        for(int j=0; j<gpu_p2p_count; i++){
+        for(int j=0; j<gpu_p2p_count; j++){
           if(gpuid[i] == gpuid[j]) continue;
           checkCudaErrors(cudaDeviceCanAccessPeer(&can_access_peer, gpuid[i],\
                                                   gpuid[j]));
