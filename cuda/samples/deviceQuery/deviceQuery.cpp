@@ -161,43 +161,45 @@ int main(int argc, char *argv[]){
         "Unknown",
         ""};
     cout<<"  <"<<sComputeMode[deviceProp.computeMode]<<">"<<endl;
+    cout<<endl;
 
-    // if there are 2 or more GPUs,
-    // query to determine whethre RDMA is supported
-    if(deviceCount >= 2){
-      cudaDeviceProp prop[64];
-      int gpuid[64];// find the first two GPUs that can support P2P
-      int gpu_p2p_count = 0;
+  }
+  //=======================================
+  // if there are 2 or more GPUs,
+  // query to determine whethre RDMA is supported
+  if(deviceCount >= 2){
+    cudaDeviceProp prop[64];
+    int gpuid[64];// find the first two GPUs that can support P2P
+    int gpu_p2p_count = 0;
 
-      for(int i=0; i<deviceCount; i++){
-        checkCudaErrors(cudaGetDeviceProperties(&prop[i],i));
+    for(int i=0; i<deviceCount; i++){
+      checkCudaErrors(cudaGetDeviceProperties(&prop[i],i));
 
-        // only Fermi,Kepler,Maxwell,Pascall,Volta,Turing and later support P2p
-        if(prop[i].major >= 2){
-           //this is an array of P2P capable GPUs
-           gpuid[gpu_p2p_count++] = i;
-        }
-      }
-  
-      // show all the combinations of support P2P GPUs
-      int can_access_peer;
-
-      if(gpu_p2p_count >= 2){
-        for(int i=0;i<gpu_p2p_count;i++){
-          for(int j=0; j<gpu_p2p_count; i++){
-            if(gpuid[i] == gpuid[j]) continue;
-            checkCudaErrors(cudaDeviceCanAccessPeer(&can_access_peer, gpuid[i],
-                                                    gpuid[j]));
-            cout<<"> Peer access from "
-                <<prop[gpuid[i]].name<<" (GPU"<<gpuid[i]<<") ->"
-                <<prop[gpuid[j]].name<<" (GPU"<<gpuid[j]<<"): "
-                <<(can_access_peer?"Yes":"No")<<endl;
-          }
-        }
+      // only Fermi,Kepler,Maxwell,Pascall,Volta,Turing and later support P2p
+      if(prop[i].major >= 2){
+         //this is an array of P2P capable GPUs
+         gpuid[gpu_p2p_count++] = i;
       }
     }
 
+    // show all the combinations of support P2P GPUs
+    int can_access_peer;
+
+    if(gpu_p2p_count >= 2){
+      for(int i=0;i<gpu_p2p_count;i++){
+        for(int j=0; j<gpu_p2p_count; i++){
+          if(gpuid[i] == gpuid[j]) continue;
+          checkCudaErrors(cudaDeviceCanAccessPeer(&can_access_peer, gpuid[i],\
+                                                  gpuid[j]));
+          cout<<"> Peer access from "
+              <<prop[gpuid[i]].name<<" (GPU"<<gpuid[i]<<") ->"
+              <<prop[gpuid[j]].name<<" (GPU"<<gpuid[j]<<"): "
+              <<(can_access_peer?"Yes":"No")<<endl;
+        }
+      }
+    }
   }
+
   cout<<"Result = PASS"<<endl;
   return 0;
   
