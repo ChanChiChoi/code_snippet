@@ -6,7 +6,7 @@ static int const nParam =
           (nOutput+nH1)// bias
          +(nInput*nH1) // connections between input and hidden layer
          +(nH1*nOutput)// connections between hidden and output layer
-         +(nInput*nOutput)//input and output
+         +(nInput*nOutput);//input and output
 //one example length
 static int const exLen = nInput+nOutput;
 
