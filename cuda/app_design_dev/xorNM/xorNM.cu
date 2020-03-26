@@ -13,9 +13,9 @@ using namespace std;
 
 // activation function
 __host__ __device__ inline float
-G(float x){return tanhf*(x);}
+G(float x){return tanhf(x);}
 __host__ __device__ inline double
-G(double x){return tanh*(x);}
+G(double x){return tanh(x);}
 
 
 template<typename Real>
@@ -35,7 +35,9 @@ class ObjFunc{
   public:
 #include "CalcError.h"
 
-  ObjFunc():nExamples{0},objFuncCallTime{0},objFuncCallCount{0}{}
+  ObjFunc() { nExamples = 0; objFuncCallCount=0; objFuncCallTime=0.;}
+
+//  ObjFunc:nExamples{0},objFuncCallTime{0},objFuncCallCount{0}(){}
 
   double aveObjFuncWallTime(){
     return objFuncCallTime/objFuncCallCount;
@@ -111,13 +113,13 @@ void *objFun_object = nullptr;
 
 float func(float*param){
   if(objFun_object)
-    return static_cast<ObjFunc<float>*>(objFun_object)->objFUnc(param);
+    return static_cast<ObjFunc<float>*>(objFun_object)->objFunc(param);
   return 0.0;
 }
 
 double func(double*param){
   if(objFun_object)
-    return static_cast<ObjFunc<double>*>(objFun_object)->objFUnc(param);
+    return static_cast<ObjFunc<double>*>(objFun_object)->objFunc(param);
   return 0.0;
 }
 
@@ -172,10 +174,10 @@ void testTraining(){
   genData<Real>(h_data, nVec, 0.01);
   testObj.setExamples(h_data);
   int nExamples = testObj.get_nExamples();
-  cout<"GB data:"<<h_data.size()*sizeof(Real)/1e9<<endl;
+  cout<<"GB data:"<<h_data.size()*sizeof(Real)/1e9<<endl;
 
   // set the Nelder-Mead starting conditions
-  int icount, ifault, numres;
+  int iCount, iFault, nRestart;
   vector<Real> start(nParam);
   vector<Real> step(nParam, 1.);
   vector<Real> xmin(nParam);
@@ -184,23 +186,23 @@ void testTraining(){
   for(int i=0; i<start.size(); i++)
     start[i] = 0.25*f_rand();
 
-  Real ynewlo = testObj.objFunc(&start[0]);
-  Real reqmin = 1.0E-18;
-  int konvge = 10;
-  int kcount = 5000;
+  Real yWorst = testObj.objFunc(&start[0]);
+  Real expectMin = 1.0E-18;
+  int nIterCheck = 10;
+  int nMaxIter = 5000;
 
-  objFunc_object = &testObj;
+  objFun_object = &testObj;
   double optStartTime = omp_get_wtime();
   //iterative training
-  nelmin<Real>(func, nParam, &start[0], &xmin[0], &ynewlo, reqmin, &step[0],
-               konvge, kcount, &icout, &numres, &ifault);
+  nelmin<Real>(func, nParam, &start[0], &xmin[0], &yWorst, expectMin, &step[0],
+               nIterCheck, nMaxIter, &iCount, &nRestart, &iFault);
   double optTime = omp_get_wtime()- optStartTime;
 
-  cout<<endl<<" return code IFAULT"<<ifault<<end<<endl;
+  cout<<endl<<" return code IFAULT"<<iFault<<endl<<endl;
   cout<<" Estimate of minimizing value X*:"<<endl<<endl;
-  cout<<" F(X*) = "<<ynewlo<<endl;
-  cout<<" Number of iterations = "<<icount<<endl;
-  cout<<" Number of restarts = "<<numres<<endl<<endl;
+  cout<<" F(X*) = "<<yWorst<<endl;
+  cout<<" Number of iterations = "<<iCount<<endl;
+  cout<<" Number of restarts = "<<nRestart<<endl<<endl;
   
   cout<<" Average wall time for ObjFunc "
       << testObj.aveObjFuncWallTime()<<endl;
@@ -219,7 +221,7 @@ void testTraining(){
     h_in[0] = h_test[index++];
     h_in[1] = h_test[index++];
 
-    testNN<Real, 2>(&min[0], &h_in[0], &h_out[0]);
+    testNN<Real, 2>(&xmin[0], &h_in[0], &h_out[0]);
     cout<<setprecision(1)<<setw(4)
         <<h_out[0]<<" "
         <<h_test[index]<<endl;
