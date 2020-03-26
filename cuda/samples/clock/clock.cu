@@ -1,4 +1,6 @@
 #include<iostream>
+#include<iomanip>
+#include<iterator>
 #include<cassert>
 
 #include<cuda_runtime.h>
@@ -6,6 +8,10 @@
 
 using std::cout;
 using std::endl;
+using std::begin;
+using std::end;
+using std::setprecision;
+using std::setw;
 
 #define NBLOCKS 64
 #define NTHREADS 256
@@ -60,6 +66,8 @@ main(int argc, char *argv[]){
   float *dinput = nullptr;
   float *doutput = nullptr;
   clock_t *dtimer = nullptr;
+  
+  float houtput[NBLOCKS];
 
   clock_t timer[NBLOCKS*2];
   float input[NTHREADS*2];
@@ -75,12 +83,19 @@ main(int argc, char *argv[]){
 
   timeReduction<<<NBLOCKS,NTHREADS,sizeof(float)*2*NTHREADS>>>(dinput,doutput,dtimer);
 
-  checkCudaErrors(cudaMemcpy(timer, dtimer,sizeof(clock_t)*NBLOCKS*2, cudaMemcpyDeviceToHost));
+  checkCudaErrors(cudaMemcpy(timer, dtimer, sizeof(clock_t)*NBLOCKS*2, cudaMemcpyDeviceToHost));
+  checkCudaErrors(cudaMemcpy(houtput, doutput, sizeof(float)*NBLOCKS, cudaMemcpyDeviceToHost));
 
   checkCudaErrors(cudaFree(dinput));
   checkCudaErrors(cudaFree(doutput));
   checkCudaErrors(cudaFree(dtimer));
 
+  cout<<"result:"<<endl;
+  for(auto p=begin(houtput); p != end(houtput); p++){
+     cout<<setw(6)<<setprecision(10)<<*p<<" ";
+  }
+  cout<<endl;
+  
   long double avgElapsedClocks = 0;
   for(int i=0; i<NBLOCKS; i++){
     avgElapsedClocks+=static_cast<long double>(timer[i+NBLOCKS]-timer[i]);
