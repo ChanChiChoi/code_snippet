@@ -4,6 +4,7 @@
 
 #include<iostream>
 #include<string>
+#include<memory>
 
 #include<cuda.h>
 #include<helper_cuda_drvapi.h>
@@ -11,6 +12,7 @@
 
 using std::cout;
 using std::endl;
+using std::unique_ptr;
 using std::string;
 
 void check(CUresult &error_id, string const &error_str){
@@ -30,8 +32,7 @@ main(int argc, char **argv){
   CUdevice dev;
   int major=0, minor=0;
   int deviceCount=0;
- // string deviceName;
-  char deviceName[1024];
+  unique_ptr<char[]> deviceName{new char[1024]};
 
   cout<<argv[0]<<" Starting..."<<endl;
   // need to link with cuda.lib files on windows os
@@ -53,8 +54,12 @@ main(int argc, char **argv){
     error_id = cuDeviceComputeCapability(&major, &minor, dev);
     check(error_id, "cuDeviceComputeCapbility returned ");
 
-    error_id = cuDeviceGetName(deviceName, 256, dev);
+    error_id = cuDeviceGetName(deviceName.get(), 256, dev);
     check(error_id, "cuDeviceGetName returned ");
+
+    cout<<"Device: "<<dev<<" "<<deviceName.get()<<endl;
+
+    
   }
   
 
