@@ -11,12 +11,13 @@
 
 using std::cout;
 using std::endl;
+using std::string;
 
-void check(CUresult &error_id, string &error_str){
+void check(CUresult &error_id, string const &error_str){
 
   if(error_id != CUDA_SUCCESS){
-    cout<<errro_str<<" [code]:"<<error_id
-        <<" -> [string]:"<<getCUdaDrvErrorString(error_id);
+    cout<<error_str<<" [code]:"<<error_id
+        <<" -> [string]:"<<getCudaDrvErrorString(error_id);
     cout<<"Result = FAIL"<<endl;
     exit(EXIT_FAILURE);
   }
@@ -29,17 +30,32 @@ main(int argc, char **argv){
   CUdevice dev;
   int major=0, minor=0;
   int deviceCount=0;
-  string deviceName;
+ // string deviceName;
+  char deviceName[1024];
 
   cout<<argv[0]<<" Starting..."<<endl;
   // need to link with cuda.lib files on windows os
   cout<<" CUDA Device Query (Driver API) s statically linked version"<<endl;
 
-  CUresult error_id = cuInit{0};
+  CUresult error_id = cuInit(0);
   check(error_id,"cuInit(0) returned ");
 
   error_id = cuDeviceGetCount(&deviceCount);
-  check(error_id,"cuDeviceGetCount returned");
+  check(error_id,"cuDeviceGetCount returned ");
+  
+  if(deviceCount==0){
+    cout<<"There are no avaliable device(s) that support CUDA"<<endl;
+  }else{
+    cout<<"Detected "<<deviceCount<<" CUDA Capable device(s)"<<endl;
+  }
+
+  for(dev = 0; dev<deviceCount; dev++){
+    error_id = cuDeviceComputeCapability(&major, &minor, dev);
+    check(error_id, "cuDeviceComputeCapbility returned ");
+
+    error_id = cuDeviceGetName(deviceName, 256, dev);
+    check(error_id, "cuDeviceGetName returned ");
+  }
   
 
   
