@@ -45,10 +45,13 @@ int main(int argc, char *argv[]){
   int nbytes = n*sizeof(int);
   int value = 26;
   
-  // host memory??????????????
+  // host memory
   int *a = 0;
-  checkCudaErrors(cudaMallocHost((void **)&a, nbytes));
+  //checkCudaErrors(cudaMallocHost((void **)&a, nbytes));
+
+  checkCudaErrors(cudaHostAlloc( (void **)&a, nbytes, cudaHostAllocDefault));
   memset(a, 0, nbytes);
+
 
   // device memory
   int *d_a = 0;
