@@ -1,10 +1,12 @@
 NVCC = /usr/local/cuda/bin/nvcc
-NVCC_FLAGS = -ccbin g++ -std=c++11 -gencode arch=compute_60,code=sm_60
+NVCC_FLAGS =  -std=c++11 -arch=sm_35
 INC = -I../common/inc
-EXTRA_FLAGS = -dc 
+EXTRA_FLAGS = -dc  -m64
 LD_FLAGS = -lcudadevrt
 
-all:cdpSimplePrint
+OBJ = cdpSimplePrint
+
+all:$(OBJ)
 
 %:%.o
 	$(NVCC) $(NVCC_FLAGS) $(LD_FLAGS) $< -o $@
@@ -13,6 +15,6 @@ all:cdpSimplePrint
 	$(NVCC) $(NVCC_FLAGS) $(INC) $(EXTRA_FLAGS) -c $< -o $@
 
 clean:
-	rm -f cdpSimplePrint
+	rm -f $(OBJ)
 	rm -f *.o
 
