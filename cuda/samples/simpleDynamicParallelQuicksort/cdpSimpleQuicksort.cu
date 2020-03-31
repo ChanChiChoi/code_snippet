@@ -133,16 +133,18 @@ int main(int argc, char *argv[]){
   int num_items = 128;
 
   //create input data
-  unsigned int *h_data = 0;
+  //unsigned int *h_data = 0;
   unsigned int *d_data = 0;
 
   cout<<"Initializing data:"<<endl;
-  h_data = static_cast<unsigned int *>(malloc(num_items*sizeof(unsigned int)));
-  initialize_data(h_data,num_items);
+  //h_data = static_cast<unsigned int *>(malloc(num_items*sizeof(unsigned int)));
+  unique_ptr<unsigned int[]> h_data{new unsigned int[num_items]};
+  initialize_data(h_data.get(),num_items);
 
   //allocate gpu mem
   checkCudaErrors(cudaMalloc((void**)&d_data, num_items*sizeof(unsigned int)));
-  checkCudaErrors(cudaMemcpy(d_data, h_data, num_items*sizeof(unsigned int), cudaMemcpyHostToDevice));
+  //checkCudaErrors(cudaMemcpy(d_data, h_data, num_items*sizeof(unsigned int), cudaMemcpyHostToDevice));
+  checkCudaErrors(cudaMemcpy(d_data, h_data.get(), num_items*sizeof(unsigned int), cudaMemcpyHostToDevice));
 
   //execute
   cout<<"Running quicksort on "<<num_items<<" elements"<<endl;
@@ -152,7 +154,7 @@ int main(int argc, char *argv[]){
   cout<<"validating results: ";
   check_results(num_items, d_data);
 
-  free(h_data);
+  //free(h_data);
   checkCudaErrors(cudaFree(d_data));
 
   exit(EXIT_SUCCESS);
