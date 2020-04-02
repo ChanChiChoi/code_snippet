@@ -29,9 +29,11 @@ main(int argc, char * argv[]){
   bTestResult = runTest(argc, (char const **)argv, str, i2, len);
 
   cout<<"Hello world"<<endl;
+  //输出Hello World.
   cout<<str<<endl;
   char str_device[16];
 
+  cout<<"======"<<endl;
   for(int i=0; i<len; i++){
     str_device[i] = static_cast<char>(i2[i].x);
   }

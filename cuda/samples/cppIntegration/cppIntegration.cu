@@ -3,22 +3,23 @@
 #include<cstdio>
 #include<memory>
 
-#include<cuda_runtime.h>
-#include<vector_types.h>
 #include<helper_cuda.h>
+//#include<cuda_runtime.h>
+#include<vector_types.h>
+
 
 using namespace std;
 
-#ifndef MAX
-#define MAX(a,b) (a>b ?a:b)
-#endif
+//#ifndef MAX
+//#define MAX(a,b) (a>b ?a:b)
+//#endif
 
 //在cpp文件中定义，并且在cpp中输出的时候也需要c风格形式
 extern "C" void
-computeGold(char *ref, char *idata, unsigned int const len);
+computeGold(std::unique_ptr<char[]>&ref, char *idata, unsigned int const len);
 
 extern "C" void
-computeGold2(int2 *ref, int2 *idata, unsigned int const len);
+computeGold2(std::unique_ptr<int2[]>&ref, int2 *idata, unsigned int const len);
 
 __global__ void 
 kernel(int *g_data){
@@ -81,12 +82,16 @@ runTest(int const argc, char const *argv[], char *data,
   kernel<<<grids,blocks>>>(reinterpret_cast<int *>(d_data));
   kernel2<<<grids,blocks2>>>(d_data_int2);
 
+  // 不知道为什么下面这句话报错
   //checkCudaErrors(getLastCudaError("kernel execution failed"));
+  //getLastCudaError("kernel execution failed");
+  checkCudaErrors(cudaDeviceSynchronize());
 
   unique_ptr<char[]> ref{new char[mem_size]};  
-  computeGold(ref.get(), data, len);
+  computeGold(ref, data, len);
+
   unique_ptr<int2[]> ref2{new int2[mem_size_int2]};
-  computeGold2(ref2.get(), data_int2, len);
+  computeGold2(ref2, data_int2, len);
 
   checkCudaErrors(cudaMemcpy(data,d_data,mem_size,cudaMemcpyDeviceToHost));
   checkCudaErrors(cudaMemcpy(data_int2, d_data_int2,mem_size_int2,
