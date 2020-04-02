@@ -29,5 +29,12 @@ main(int argc, char * argv[]){
   bTestResult = runTest(argc, (char const **)argv, str, i2, len);
 
   cout<<str<<endl;
+  char str_device[16];
+
+  for(int i=0; i<len; i++){
+    str_device[i] = static_cast<char>(i2[i].x);
+  }
+  cout<<str_device<<endl;
+
   exit(bTestResult? EXIT_SUCCESS: EXIT_FAILURE);
 }
