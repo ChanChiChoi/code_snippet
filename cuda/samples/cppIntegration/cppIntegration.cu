@@ -65,6 +65,7 @@ runTest(int const argc, char const *argv[], char *data,
   unsigned int const mem_size_int2 = sizeof(int2)*len;
 
   //device mem
+  //TODO:设计一个类似unique_ptr的模板，然后来封装cudaMalloc
   char *d_data;
   checkCudaErrors(cudaMalloc((void**)&d_data,mem_size));
   checkCudaErrors(cudaMemcpy(d_data, data, mem_size, cudaMemcpyHostToDevice));
@@ -82,6 +83,7 @@ runTest(int const argc, char const *argv[], char *data,
   kernel<<<grids,blocks>>>(reinterpret_cast<int *>(d_data));
   kernel2<<<grids,blocks2>>>(d_data_int2);
 
+  //TODO:
   // 不知道为什么下面这句话报错
   //checkCudaErrors(getLastCudaError("kernel execution failed"));
   //getLastCudaError("kernel execution failed");
