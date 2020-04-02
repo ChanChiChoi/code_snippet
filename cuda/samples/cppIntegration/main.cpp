@@ -28,6 +28,7 @@ main(int argc, char * argv[]){
 
   bTestResult = runTest(argc, (char const **)argv, str, i2, len);
 
+  cout<<"Hello world"<<endl;
   cout<<str<<endl;
   char str_device[16];
 

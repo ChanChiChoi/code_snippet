@@ -4,7 +4,7 @@
 #include<memory>
 
 #include<cuda_runtime.h>
-
+#include<vector_types.h>
 #include<helper_cuda.h>
 
 using namespace std;
@@ -18,7 +18,7 @@ extern "C" void
 computeGold(char *ref, char *idata, unsigned int const len);
 
 extern "C" void
-computeGold2(int2 *ref, int2 *idata, unsigned int char len);
+computeGold2(int2 *ref, int2 *idata, unsigned int const len);
 
 __global__ void 
 kernel(int *g_data){
@@ -58,7 +58,7 @@ runTest(int const argc, char const *argv[], char *data,
         int2 *data_int2, unsigned int len){
 
   //检测是否刚好是4的倍数
-  assert(0 == len(%4));
+  assert(0 == (len%4) );
   unsigned int const num_threads = len / 4;
   unsigned int const mem_size = sizeof(char)*len;
   unsigned int const mem_size_int2 = sizeof(int2)*len;
@@ -78,10 +78,10 @@ runTest(int const argc, char const *argv[], char *data,
   dim3 blocks(num_threads,1,1);//对于int类型，4个char一个线程;16/4
   dim3 blocks2(len,1,1);//对于int2类型，2个int 一个线程;16
 
-  kernel<<<grids,blocks>>>(static_cast<int *>(d_data));
+  kernel<<<grids,blocks>>>(reinterpret_cast<int *>(d_data));
   kernel2<<<grids,blocks2>>>(d_data_int2);
 
-  checkCudaErrors(getLastCudaError("kernel execution failed"));
+  //checkCudaErrors(getLastCudaError("kernel execution failed"));
 
   unique_ptr<char[]> ref{new char[mem_size]};  
   computeGold(ref.get(), data, len);
@@ -98,7 +98,8 @@ runTest(int const argc, char const *argv[], char *data,
     if(ref[i] != data[i] ||
        ref2[i].x != data_int2[i].x ||
        ref2[i].y != data_int2[i].y)
-       flag = False
+
+       flag = false;
   }
 
   checkCudaErrors(cudaFree(d_data));
