@@ -50,7 +50,9 @@ int main(){
 #else
   normal();
 #endif
- 
+  //一定要加上这句，不然底层context会自己帮忙释放未释放的内存，
+  //显示调用就意味着内存需要手动自己释放
+  cudaDeviceReset();
   return 0;
 
 }
