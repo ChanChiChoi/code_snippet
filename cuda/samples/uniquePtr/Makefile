@@ -1,5 +1,5 @@
 NVCC = /usr/local/cuda/bin/nvcc
-NVCC_FLAGS = -g -G -Xcompiler -Wall
+NVCC_FLAGS = -g -G -Xcompiler -Wall -std=c++11
 
 all:unique normal
 
@@ -13,6 +13,7 @@ normal:uniquePtr.cu
 
 run:
 	cuda-memcheck --leak-check full ./unique
+	@echo -e '\n====================================================\n'
 	cuda-memcheck --leak-check full ./normal
 
 clean:
