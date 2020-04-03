@@ -18,6 +18,9 @@ int uniquePtr(){
  int *d_data0;
  cudaMalloc((void**)&d_data0,sizeof(int)*10);
  //交给unique_ptr做指针维护
+ // unique_ptr 的生命周期要与cudaDeviceReset一起考虑，
+ //cudaDeviceReset是将上下文都重置，如果之前并未执行cudaFree则会造成内存泄漏
+// 但是，如果不调用cudaDeviceReset,其会在main函数生命周期之后执行
  unique_ptr<int,void(*)(int *)> d_data{d_data0,
                                        [](int *p){cudaFree(p);} }; 
  int h_data[10] = {1,2,3,4,5,6,7,8,9,10};
