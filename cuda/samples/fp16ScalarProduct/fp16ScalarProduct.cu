@@ -21,7 +21,8 @@ void genInput(half2 * src, size_t size){
     unsigned int temp = rand();
     temp &= 0x83FF83FF;
     temp |= 0X3C003C00;
-    src[i] = *reinterpret_cast<half2*>(temp);
+    src[i] = *reinterpret_cast<half2*>(&temp);
+    //src[i] = *(half2*)&temp;
   }
 }
 
