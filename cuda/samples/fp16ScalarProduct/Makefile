@@ -10,3 +10,7 @@ all:$(OBJ)
 
 $(OBJ):%:%.cu
 	$(NVCC) $(NVCC_FLAGS) $(EXTRA_FLSGS) $(INCLUDE_PATH) $^ -o $@
+
+clean:
+	rm -f *.o
+	rm -f $(OBJ)
