@@ -115,7 +115,8 @@ main(int argc, char *argv[]){
   srand(time(NULL));
   int const blocks = 128;
   int const threads = 128;
-  size_t size = blocks*threads*16; // 一共多少字节;每个线程16个数值？
+  //size_t size = blocks*threads*16; // 一共多少字节;每个线程16个数值？
+  size_t size = blocks*threads; //猜测是例子写错了·
 
 
   auto lambdaHost = [](half2*p){cudaFreeHost(p);};
