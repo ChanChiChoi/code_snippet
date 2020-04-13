@@ -137,7 +137,7 @@ main(int argc, char *argv[]){
   unique_ptr<heterogeneous_workload[]>workloads{
                                   new heterogeneous_workload[N_workloads]};
   //创建一个Barrier实例
-  thread_barrier = cutCreateBarrier(N_workloads);  //创建屏障同步
+  thread_barrier = cutCreateBarrier(N_workloads);  //创建屏障同步,将releaseCount设为N
 
   //主线程为每个异质workload 各分出一个CPU worker线程
   cout<<"starting "<<N_workloads<<" heterogeneous computing workloads"<<endl;
@@ -147,6 +147,7 @@ main(int argc, char *argv[]){
     workloads[i].cudaDeviceID = gpuInfo[i%max_gpus];
     cutStartThread(launch, (workloads.get()+i));
   }
+  //barrier阻塞，保证所有的线程都完成了任务，主线程才执行后续的
   cutWaitForBarrier(&thread_barrier);
   cout<<"total of "<<N_workloads<<" workloads finished"<<endl;
 
