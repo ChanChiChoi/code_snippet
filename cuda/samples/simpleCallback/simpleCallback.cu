@@ -9,6 +9,7 @@
 
 #include<iostream>
 #include<memory>
+#include<cuda_runtime.h>
 #include<helper_cuda.h>
 
 #include "multithreading.h"
@@ -72,8 +73,9 @@ CUT_THREADPROC launch(void *void_arg){
                                   cudaMemcpyDeviceToHost,
                                   workload->stream));
 
-//  checkCudaErrors(cudaLaunchHostFunc(workload->stream, 
-//                                     myStreamCallback, 
+  //TODO: cudaLaunchHostFunc 一直报 undefine
+//  checkCudaErrors(cudaLaunchHostFunc(workload->stream, \
+//                                     myStreamCallback, \
 //                                     workload));
   checkCudaErrors(cudaStreamAddCallback(workload->stream,
                                         myStreamCallback,
@@ -82,6 +84,7 @@ CUT_THREADPROC launch(void *void_arg){
   CUT_THREADEND;
   
 }
+
 
 CUT_THREADPROC postprocess(void *void_arg){
   heterogeneous_workload *workload = (heterogeneous_workload*) void_arg;
@@ -100,8 +103,6 @@ CUT_THREADPROC postprocess(void *void_arg){
   cutIncrementBarrier(&thread_barrier);
   CUT_THREADEND;
 }
-
-
 
 
 void CUDART_CB

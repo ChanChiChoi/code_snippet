@@ -1,5 +1,5 @@
 NVCC = /usr/local/cuda/bin/nvcc
-NVCC_FLAGS = -g -G -Xcompiler -Wall -std=c++11
+NVCC_FLAGS = -g -G -Xcompiler -Wall -std=c++11 -arch=sm_70
 INCLUDE_PATH = -I../common/inc
 
 OBJ = simpleCallback
