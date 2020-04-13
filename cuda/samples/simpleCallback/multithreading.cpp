@@ -46,6 +46,7 @@ void cutWaitForBarrier(CUTBarrier* barrier){
 
   pthread_mutex_lock(&barrier->mutex);
   while(barrier->count < barrier->releaseCount)
+    //下面这句话是会释放mutex,然后等待其他线程发起信号
     pthread_cond_wait(&barrier->conditionVariable,
                       &barrier->mutex);
 
