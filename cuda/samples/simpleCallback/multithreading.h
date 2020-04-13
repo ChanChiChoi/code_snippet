@@ -24,7 +24,7 @@ extern "C"{
 
 
 //创建线程
-CUTThread cutStartThread(CUT_THREADROUTING,void *data);
+CUTThread cutStartThread(CUT_THREADRFUNC,void *data);
 
 //等待线程结束
 void cutEndThread(CUTThread thread);
