@@ -1,6 +1,19 @@
+/*
+无论哪种等待方式，都必须和一个互斥锁配合，以防止多个线程同时请求pthread_cond_wait()（或pthread_cond_timedwait()，下同）的竞争条件（Race Condition）。mutex互斥锁必须是普通锁（PTHREAD_MUTEX_TIMED_NP）或者适应锁（PTHREAD_MUTEX_ADAPTIVE_NP），且在调用pthread_cond_wait()前必须由本线程加锁（pthread_mutex_lock()），而在更新条件等待队列以前，mutex保持锁定状态，并在线程挂起进入等待前解锁。
+在条件满足从而离开pthread_cond_wait()之前，mutex将被重新加锁，以与进入thread_cond_wait()前的加锁动作对应。
+
+使用pthread_cond_wait方式如下：
+
+>> pthread _mutex_lock(&mutex)
+>> while或if(线程执行的条件是否成立)
+>>       pthread_cond_wait(&cond, &mutex);
+>> 线程执行
+>> pthread_mutex_unlock(&mutex);
+*/
+
 #include <pthread.h>
 #include <stdio.h>
-#include<unistd.h>
+#include <unistd.h>
 #include <stdlib.h>
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; /*初始化互斥锁*/
