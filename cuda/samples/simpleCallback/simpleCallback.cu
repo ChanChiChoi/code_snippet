@@ -148,7 +148,7 @@ main(int argc, char *argv[]){
     cutStartThread(launch, (workloads.get()+i));
   }
   cutWaitForBarrier(&thread_barrier);
-  cout<<"total of "<<N_workloads<<" workloads finisned"<<endl;
+  cout<<"total of "<<N_workloads<<" workloads finished"<<endl;
 
   bool success = true;
   for(int i=0; i<N_workloads; i++)
