@@ -8,7 +8,7 @@ OBJ = simpleAtomicIntrinsics
 all:$(OBJ)
 
 
-$(OBJ):%:%.cu
+$(OBJ):simpleAtomicIntrinsics.cu simpleAtomicIntrinsics_cpu.cpp
 	$(NVCC) $(NVCC_FLAGS) $(INCLUDE_PATH) $^ -o $@
 
 

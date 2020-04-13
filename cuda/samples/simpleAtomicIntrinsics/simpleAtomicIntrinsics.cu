@@ -13,7 +13,7 @@ using namespace std;
 #include "simpleAtomicIntrinsics_kernel.cuh"
 
 extern "C" bool
-cimputeGold(int *gpuData, int const len);
+computeGold(int *gpuData, int const len);
 
 int
 main(int argc, char *argv[]){
@@ -50,7 +50,7 @@ main(int argc, char *argv[]){
                              cudaMemcpyDeviceToHost));
 
   //check
-//  computeGold(h_output, numThreads*numBlocks);
+  computeGold(h_output.get(), numThreads*numBlocks);
 
   cout<<"----------------"<<endl;
   for(unsigned int i=0; i<numData; i++)

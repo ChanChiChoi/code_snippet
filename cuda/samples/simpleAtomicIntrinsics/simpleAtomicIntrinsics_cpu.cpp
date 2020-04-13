@@ -20,6 +20,8 @@ computeGold(int *gpuData, int const len){
   if(val != gpuData[0]){
     cerr<<"atomicAdd failed"<<endl;
     exit(EXIT_FAILURE);
+  }else{
+    cout<<"atomicAdd success"<<endl;
   }
 
   //sub
@@ -125,5 +127,5 @@ computeGold(int *gpuData, int const len){
    exit(EXIT_FAILURE);
  }
   
-  
+ return 0;  
 }
