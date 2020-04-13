@@ -5,7 +5,7 @@
 #include<pthread.h>
 
 using CUTThread = pthread_t;
-using CUT_THREADFUNC = void*(*)(void);
+using CUT_THREADFUNC = void*(*)(void*);
 
 #define CUT_THREADPROC void*
 #define CUT_THREADEND return 0
@@ -24,7 +24,7 @@ extern "C"{
 
 
 //创建线程
-CUTThread cutStartThread(CUT_THREADRFUNC,void *data);
+CUTThread cutStartThread(CUT_THREADFUNC,void *data);
 
 //等待线程结束
 void cutEndThread(CUTThread thread);

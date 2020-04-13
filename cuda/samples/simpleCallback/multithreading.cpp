@@ -3,9 +3,9 @@
 
 //创建线程
 CUTThread cutStartThread(CUT_THREADFUNC func,void *data){
-  pthread_t threads;
+  pthread_t thread;
   pthread_create(&thread, NULL, func, data);
-  return threads;
+  return thread;
 }
 
 //等待线程结束
@@ -24,7 +24,7 @@ CUTBarrier cutCreateBarrier(int releaseCount){
   CUTBarrier barrier;
   barrier.count = 0;
   barrier.releaseCount = releaseCount;
-  pthread_mutex_init(&barrier.mutex,0);
+  pthread_mutex_init(&barrier.mutex,0);//每一个Barrier中的互斥锁都初始化
   pthread_cond_init(&barrier.conditionVariable, 0);
   return barrier;
 }
@@ -32,6 +32,7 @@ CUTBarrier cutCreateBarrier(int releaseCount){
 //Increment barrier. (execution continues)
 void cutIncrementBarrier(CUTBarrier * barrier){
   int myBarrierCount;
+  //互斥锁
   pthread_mutex_lock(&barrier->mutex);
   myBarrierCount = ++barrier->count;
   pthread_mutex_unlock(&barrier->mutex);
