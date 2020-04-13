@@ -2,7 +2,7 @@
 
 
 //创建线程
-CUTThread cutStartThread(CUT_THREADROUTING func,void *data){
+CUTThread cutStartThread(CUT_THREADFUNC func,void *data){
   pthread_t threads;
   pthread_create(&thread, NULL, func, data);
   return threads;

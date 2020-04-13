@@ -5,7 +5,7 @@
 #include<pthread.h>
 
 using CUTThread = pthread_t;
-using CUT_THREADROUTING = void*(*)(void);
+using CUT_THREADFUNC = void*(*)(void);
 
 #define CUT_THREADPROC void*
 #define CUT_THREADEND return 0
