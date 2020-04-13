@@ -67,7 +67,7 @@ main(int argc, char *argv[]){
 
   unique_ptr<heterogeneous_workload[]>workloads{
                                   new heterogeneous_workload[N_workloads]};
-  thread_barrier = cutCreateBarrier(N_workloads);  
+  thread_barrier = cutCreateBarrier(N_workloads);  //创建屏障同步
 
   //主线程为每个异质workload 各分出一个CPU worker线程
   cout<<"starting "<<N_workloads<<" heterogeneous computing workloads"<<endl;
