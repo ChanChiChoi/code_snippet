@@ -63,6 +63,8 @@ void *thread2(void *junk){
         printf("IN two, i=%d\n", i);                
         pthread_mutex_lock(&mutex);                 
         if(i%3!=0)                                  
+            //原理就是会释放mutex，给其他线程机会，然后其他线程条件满足
+            //会发送信号，这边接收到之后，会立马加锁，接着完成后续操作
             pthread_cond_wait(&cond,&mutex);/*等待*/
         printf("thread2:%d\n",i);                   
         pthread_mutex_unlock(&mutex);               
