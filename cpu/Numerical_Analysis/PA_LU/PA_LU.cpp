@@ -73,7 +73,7 @@ void PA_LU( MatrixXd& P, MatrixXd& L, MatrixXd& U){
    L(i,i) = 1;
 }
 
-void Lc_Pb(MatrixXd& L, VectorXd& c, VectorXd& b){ 
+void Lc_Pb(MatrixXd& L, VectorXd& c, VectorXd&& b){ 
 
   for(int row=0; row<L.rows(); row++){
     float sum = 0;
@@ -121,8 +121,8 @@ main(){
   cout<<"---U:"<<endl<<U<<endl;
   cout<<"---Lc=Pb---"<<endl;
   VectorXd c(b.rows());
-  b = P*b;
-  Lc_Pb(L,c,b);
+//  b = P*b;
+  Lc_Pb(L,c,P*b);
   cout<<"---c:"<<endl<<c<<endl;
   VectorXd x(b.rows());
   cout<<"---Ux=c---"<<endl;
