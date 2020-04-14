@@ -23,13 +23,13 @@ MatrixXd func(MatrixXd& mat){
 //朴素高斯消去法
 MatrixXd gaussian(MatrixXd& mat){
   //从第二行开始,
-  for(int pivotCol = 1; pivotCol<mat.rows(); pivotCol++){
+  for(int pivotRow = 1; pivotRow<mat.rows(); pivotRow++){
     //主元列
-    int pivot = pivotCol-1;
+    int pivot = pivotRow-1;
     //后续每一行都得操作一遍
-    for(int row=pivotCol; row<mat.rows(); row++){
+    for(int row=pivotRow; row<mat.rows(); row++){
       //主元倍数
-      float scale = mat(row,pivot)/mat(pivotCol-1,pivot);
+      float scale = mat(row,pivot)/mat(pivotRow-1,pivot);
       
       for(int col=pivot; col<mat.cols(); col++){
 
