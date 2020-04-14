@@ -53,9 +53,10 @@ CUT_THREADPROC launch(void *void_arg){
                                 cudaHostAllocPortable));
 
   //cpu线程生成数据
-  for(int i=0; i<N_ele_per_workload; i++)
+  for(int i=0; i<N_ele_per_workload; i++){
    workload->h_data[i] = workload->id+i;
-
+   //printf("==%d:%d\n",i, workload->id+i);
+  }
   //kernel configuration
   dim3 block(512);
   dim3 grid((N_ele_per_workload+block.x-1)/block.x);
@@ -74,8 +75,8 @@ CUT_THREADPROC launch(void *void_arg){
                                   workload->stream));
 
   //TODO: cudaLaunchHostFunc 一直报 undefine
-//  checkCudaErrors(cudaLaunchHostFunc(workload->stream, \
-//                                     myStreamCallback, \
+//  checkCudaErrors(cudaLaunchHostFunc(workload->stream, 
+//                                     myStreamCallback, 
 //                                     workload));
   checkCudaErrors(cudaStreamAddCallback(workload->stream,
                                         myStreamCallback,
@@ -91,9 +92,13 @@ CUT_THREADPROC postprocess(void *void_arg){
   // ...GPU完成了任务，后续工作交给CPU
   checkCudaErrors(cudaSetDevice(workload->cudaDeviceID));
   workload->success = true;
-  for(int i=0; i<N_workloads;i++)
+  
+  //for(int i=0; i<N_workloads;i++){
+  //觉得这里错了，不应该是N_workloads,而是N_ele_per_workload
+  //当前函数是被一个线程处理，去验证host端结果是否正确
+  for(int i=0; i<N_ele_per_workload;i++){
     workload->success &= workload->h_data[i] == i+workload->id+1;
-
+  }
   //释放资源
   checkCudaErrors(cudaFree(workload->d_data));
   checkCudaErrors(cudaFreeHost(workload->h_data));
@@ -108,6 +113,7 @@ CUT_THREADPROC postprocess(void *void_arg){
 void CUDART_CB
 myStreamCallback(cudaStream_t stream, cudaError_t status, void *data){
   checkCudaErrors(status);//检查stream操作之后的状态
+
   cutStartThread(postprocess,data);//spawn新的cpu worker 继续做后处理
 }
 
@@ -149,6 +155,7 @@ main(int argc, char *argv[]){
     cutStartThread(launch, (workloads.get()+i));
   }
   //barrier阻塞，保证所有的线程都完成了任务，主线程才执行后续的
+  cudaDeviceSynchronize();
   cutWaitForBarrier(&thread_barrier);
   cout<<"total of "<<N_workloads<<" workloads finished"<<endl;
 
