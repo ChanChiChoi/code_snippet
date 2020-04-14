@@ -27,13 +27,13 @@ void func(MatrixXd& mat,MatrixXd& L, VectorXd& b){
 //朴素高斯消去法
 void LU( MatrixXd& L, MatrixXd& U){
   //从第二行开始,
-  for(int pivotCol = 1; pivotCol<U.rows(); pivotCol++){
+  for(int pivotRow = 1; pivotRow<U.rows(); pivotRow++){
     //主元列
-    int pivot = pivotCol-1;
+    int pivot = pivotRow-1;
     //后续每一行都得操作一遍
-    for(int row=pivotCol; row<U.rows(); row++){
+    for(int row=pivotRow; row<U.rows(); row++){
       //主元倍数
-      float scale = U(row,pivot)/U(pivotCol-1,pivot);
+      float scale = U(row,pivot)/U(pivotRow-1,pivot);
       L(row,pivot) = scale;    
       for(int col=pivot; col<U.cols(); col++){
           U(row,col) -= scale*U(pivot,col);    
