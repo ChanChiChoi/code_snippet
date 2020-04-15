@@ -56,7 +56,7 @@ void Jacobi(VectorXd&x_i1, VectorXd& x_i,
    x_i = x_i1;
 
   }
-  //cout<<"iteration:"<<i<<endl;
+  cout<<"iteration:"<<i<<endl;
 }
 
  
