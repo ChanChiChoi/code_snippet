@@ -67,7 +67,7 @@ main(){
   MatrixXd R(3,3);
   func(mat);
 
-//  isPositiveDefinite(mat);
+  isPositiveDefinite(mat);
   cout<<"---mat:"<<endl<<mat<<endl;  
   cout<<"---Cholesky---"<<endl;
   Cholesky(mat,R);
