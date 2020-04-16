@@ -38,7 +38,7 @@ void preprocess( MatrixXd& mat, MatrixXd& L, MatrixXd& D, MatrixXd& U){
 }
 
 
-void Jacobi(VectorXd&x_i1, VectorXd& x_i,
+void SOR(VectorXd&x_i1, VectorXd& x_i,
             MatrixXd& L, MatrixXd& D, 
             MatrixXd& U, VectorXd& b,
             float omega){
@@ -82,6 +82,6 @@ main(){
   cout<<"---SOR---"<<endl;
   VectorXd x_i(3);
   VectorXd x_i1(3);
-  Jacobi(x_i1,x_i,L,D, U,b, omega);
+  SOR(x_i1,x_i,L,D, U,b, omega);
   cout<<"---x:"<<endl<<x_i1<<endl;
 } 
