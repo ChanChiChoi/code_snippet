@@ -74,6 +74,7 @@ main(){
   func(mat, b);
   preprocess(mat,L,D,U);
   cout<<"---mat:"<<endl<<mat<<endl;  
+  cout<<"---b:"<<endl<<b<<endl;
   cout<<"---L:"<<endl<<L<<endl;
   cout<<"---D:"<<endl<<D<<endl;
   cout<<"---U:"<<endl<<U<<endl;
