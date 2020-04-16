@@ -49,7 +49,7 @@ void Krylov(MatrixXd& A, VectorXd& b, VectorXd& x){
     if(fabs(H(k+1,k))>1e-6)// 如果不等于0, 存储新的列
       q.block(0,k+1,rA,1) = y / H(k+1,k);
 
-
+    //用法线方程解决||Hc_k - [||r||_2,0,0...]^T ||_2
     VectorXd _b = VectorXd::Zero(k+2);
     _b(0) = r.norm();
 
@@ -57,7 +57,7 @@ void Krylov(MatrixXd& A, VectorXd& b, VectorXd& x){
     
     MatrixXd subH = H.block(0,0,k+2,k+1); 
     Normal(subH,_b,c);
-
+    //x_k = Q_k*c_k + c0;
     x = q.block(0,0,rA,k+1)*c + x0;
    
     cout<<"the ["<<k+1<<"] th solution:"<<endl<<x<<endl;
