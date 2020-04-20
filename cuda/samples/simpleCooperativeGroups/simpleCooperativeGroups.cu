@@ -11,6 +11,7 @@ sumReduction(thread_group g, int *x, int val){
   //获取当前线程的索引
   int lane = g.thread_rank();
 
+/*
   for(int i = g.size()/2; i>0 ;i /= 2){
     x[lane] = val;
     g.sync();
@@ -20,9 +21,21 @@ sumReduction(thread_group g, int *x, int val){
     }
     g.sync();
   }
+*/
+  //先进行赋值
+  x[lane] = val;
+  g.sync();
+
+  for(int i = g.size()/2; i>0 ;i /= 2){
+
+    if(lane<i){
+      x[lane] += x[lane +i];
+    }
+    g.sync();
+  }
 
   if(lane == 0)
-    return val;
+    return x[lane];
   else
     return -1;
 }
@@ -41,7 +54,7 @@ cgKernel(){
   input = threadBlockGroup.thread_rank();
   int cgTid = input;
   
-  //首项加末项乘以项数(0 + n-1)*(n)/2
+  //首项加末项乘以项数(0 + n-1)*(n)/2 :(0+63)*64/2=2016
   expectedOutput = (threadBlockGroupSize-1)*threadBlockGroupSize/2;
   
   output = sumReduction(threadBlockGroup, workspace, input);
@@ -55,15 +68,16 @@ cgKernel(){
   threadBlockGroup.sync();
   //将当前group以每个16个线程进行划分
   thread_block_tile<16> tiledPartition16 = tiled_partition<16>(threadBlockGroup);
-  //整个group中当前线程索引，减去分块之后线程内部索引，？？
-  int workspaceOffset = threadBlockGroup.thread_rank()-tiledPartition16.thread_rank();
-  
-  input = tiledPartition16.thread_rank();
-  expectedOutput = 15*16/2;
+
+  int  cgSubTid =  tiledPartition16.thread_rank();
+  //整个group中当前线程索引，减去分块之后线程内部索引，
+  int workspaceOffset = cgTid - cgSubTid;
+
+  input = cgSubTid;
+  expectedOutput = (0+15)*16/2; // 首项加末项 乘以项数 除以2
   output = sumReduction(tiledPartition16, workspace+workspaceOffset, input);
 
-  cgTid = input;
-  if(cgTid == 0){
+  if(cgSubTid == 0){
     printf("index inside this titledPartition16 group from 0 to 15, result is %d, expected is %d\n",output, expectedOutput);
   }
   
