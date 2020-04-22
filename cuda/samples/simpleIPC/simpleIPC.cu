@@ -1,3 +1,20 @@
+/*
+在MultiKernel中有2个分支，一个是父进程，剩下都是子进程，其中有个barrier，可以如下图形式理解
+============================
+process0  |  process1     process2
+----------|-------------------------
+x=1       |  y=2
+proBarrier  proBarrier   proBarrier
+----------|-------------------------
+print(y=2)| print(x=1)
+proBarrier  proBarrier   proBarrier
+----------|-------------------------
+proBarrier  proBarrier   proBarrier
+----------|-------------------------
+==================================
+如上图所示，所谓barrier，就是不同进程基于此，建立栅栏
+保证栅栏下面的代码能够访问上面的其他进程的数据。通过共享内存访问
+*/
 #include<cassert>
 #include<cstdio>
 #include<iostream>
@@ -119,12 +136,12 @@ void getDeviceCount(ipcDevices_t * devices){
 }
 
 
-void proBarrier(){
+void proBarrier(int index){
   // 提供多线程下变量的加减和逻辑运算的原子操作
   // 实测 __sync_add_and_fetch 可以实现多进程之间原子操作；
   int newCount = __sync_add_and_fetch(&g_barrier->count, 1);
 
-  printf("当前：tid=[%lu], pid=%lu %d \n", (lu)gettid(),(lu)getpid(),newCount);
+  printf("当前:%d; tid=[%lu], pid=%lu %d \n",index, (lu)gettid(),(lu)getpid(),newCount);
   if(newCount == g_processCount){ // 如果是最后一个进程,重置
     g_barrier->count = 0;
     g_barrier->sense = !g_procSense;
@@ -175,22 +192,22 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
                                 DATA_BUF_SIZE*sizeof(int),
                                 cudaMemcpyHostToDevice ));
 
-    // b.1:栅栏，让其他子进程走else分支，完成event handles创建完成
-    //s_mem[index].eventHandle 其他进程都创建完成
-    proBarrier();
+    // b.2:栅栏，让其他子进程走else分支，完成event handles创建完成
+    // cudaEventCreate s_mem[index].eventHandle 其他进程都创建完成
+    proBarrier(index);
     
     for(int i=1; i<g_processCount; i++){
       checkCudaErrors(cudaIpcOpenEventHandle(&event[i],
                                              s_mem[i].eventHandle));
     }
 
-    //b.2: 等待所有进程运行事件同步
-    proBarrier();
+    //b.3: 等待所有进程开启事件record和kernel
+    proBarrier(index);
     for(int i=1; i<g_processCount; i++)
       checkCudaErrors(cudaEventSynchronize(event[i]));
 
-    //b.3
-    proBarrier();
+    //b.5
+    proBarrier(index);
     checkCudaErrors(cudaMemcpy(h_results, 
                                d_ptr+DATA_BUF_SIZE,
                                DATA_BUF_SIZE*(g_processCount-1)*sizeof(int), 
@@ -208,6 +225,7 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
         }
       }
     }
+    printf("Result: Pass\n");
 
   }else{
     cudaEvent_t event;
@@ -215,7 +233,8 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
     checkCudaErrors(cudaIpcGetEventHandle( (cudaIpcEventHandle_t*)&s_mem[index].eventHandle,
                                            event ));
     //b.1: 等进程0初始化device显存
-    proBarrier();
+    // 对于其他进程运行过程而言，这一步，需要父进程完成device显存初始化
+    proBarrier(index);
     
     checkCudaErrors(cudaIpcOpenMemHandle((void**)&d_ptr,
                                          s_mem[0].memHandle,
@@ -230,15 +249,13 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
                                      index+1);
     checkCudaErrors(cudaEventRecord(event));
 
-    //b.2
-    proBarrier();
+    //b.4 
+    proBarrier(index);
     checkCudaErrors(cudaIpcCloseMemHandle(d_ptr));
 
-    //b.3 等所有子进程完成事件的使用
-    proBarrier();
+    //b.6 等所有子进程完成事件的使用
+    proBarrier(index);
     checkCudaErrors(cudaEventDestroy(event));
-
-  
   }
   cudaDeviceReset();
   
@@ -328,7 +345,7 @@ must built as a 64-bit target."<<endl;
 
   MultiKernel(s_mem, index);
 
-  //释放
+  //等待其他子进程结束，就是join
   if(index == 0){
     for(int i=1; i<g_processCount; i++){
        int status;
