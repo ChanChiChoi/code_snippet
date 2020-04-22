@@ -185,6 +185,8 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
     checkCudaErrors(cudaMalloc((void**)&d_ptr, 
                                DATA_BUF_SIZE*g_processCount*sizeof(int) ));
     //device Ipc
+    //Gets an interprocess memory handle for an existing device memory allocation.
+    // IpcGet意思就是在创建的进程中，将其送到IPC对应的内存上
     checkCudaErrors(cudaIpcGetMemHandle( (cudaIpcMemHandle_t*)&s_mem[0].memHandle,
                                          (void*)d_ptr ));
     checkCudaErrors(cudaMemcpy( (void*)d_ptr,
@@ -197,6 +199,7 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
     proBarrier(index);
     
     for(int i=1; i<g_processCount; i++){
+      //IpcOpen就是获取其他进程的句柄
       checkCudaErrors(cudaIpcOpenEventHandle(&event[i],
                                              s_mem[i].eventHandle));
     }
@@ -230,12 +233,13 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
   }else{
     cudaEvent_t event;
     checkCudaErrors(cudaEventCreate(&event, cudaEventDisableTiming | cudaEventInterprocess));
+    // IpcGet 将当前进程中的句柄送到共享内存上
     checkCudaErrors(cudaIpcGetEventHandle( (cudaIpcEventHandle_t*)&s_mem[index].eventHandle,
                                            event ));
     //b.1: 等进程0初始化device显存
     // 对于其他进程运行过程而言，这一步，需要父进程完成device显存初始化
     proBarrier(index);
-    
+    // IpcOpen就是获取共享内存上，其他进程创建的句柄 
     checkCudaErrors(cudaIpcOpenMemHandle((void**)&d_ptr,
                                          s_mem[0].memHandle,
                                          cudaIpcMemLazyEnablePeerAccess));
@@ -251,6 +255,7 @@ void MultiKernel(ipcCUDA_t *s_mem, int index){
 
     //b.4 
     proBarrier(index);
+    // Close memory mapped with cudaIpcOpenMemHandle.
     checkCudaErrors(cudaIpcCloseMemHandle(d_ptr));
 
     //b.6 等所有子进程完成事件的使用
