@@ -20,7 +20,7 @@ $(addsuffix .o,$(OBJ)):$(addsuffix .cu,$(OBJ))
 	$(NVCC) $(NVCC_FLAGS) $(INCLUDE_PATH) -c $^ -o $@
 
 $(addsuffix _mpi.o,$(OBJ)):$(addsuffix .cpp,$(OBJ))
-	$(CC) -c $^ -o $@
+	$(CC) $(CC_FLAG) -c $^ -o $@
 
 clean:
 	rm -f $(OBJ)
