@@ -7,7 +7,7 @@ LD_PATH = -L/usr/local/cuda/lib64 -lcudart
 
 
 OBJ = simpleMPI
-
+NP = 4
 
 
 all:$(OBJ)
@@ -23,7 +23,7 @@ $(addsuffix _mpi.o,$(OBJ)):$(addsuffix .cpp,$(OBJ))
 	$(CC) $(CC_FLAG) -c $^ -o $@
 
 run:
-	mpirun -np 4 ./simpleMPI
+	mpirun -np $(NP) ./simpleMPI
 
 
 clean:
