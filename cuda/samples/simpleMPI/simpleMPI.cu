@@ -23,7 +23,7 @@ MPIKernel(float *input, float *output){
 
 void initData(float *data, int dataSize){
   for(int i=0; i<dataSize; i++)
-    data[i] = static_cast<float>(rand() / RAND_MAX);
+    data[i] = static_cast<float>(rand()) / RAND_MAX;
 }
 
 void computeGPU(float *hostData, int blockSize, int gridSize){

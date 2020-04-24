@@ -1,4 +1,5 @@
 #include<iostream>
+#include<iomanip>
 #include<mpi.h>
 
 
@@ -42,7 +43,7 @@ main(int argc, char *argv[]){
     initData(dataRoot, dataSizeTotal);
   }
 
-  //每个节点分配一个buffer
+  //每个节点分配一个buffer,包含0节点
   float *dataNode = new float[dataSizePerNode];
 
   //dispatch 输入数据的某个部分到每个节点
@@ -64,6 +65,9 @@ main(int argc, char *argv[]){
 
   //归约到root 节点，计算每个节点的输出值的和
   float sumNode = sum(dataNode, dataSizePerNode);
+  cout<<"当前节点索引:"<<commRank
+      <<" ;结果值为:"<<setprecision(10)
+      <<setw(10)<<sumNode<<endl;
   float sumRoot;
 
   MPI_CHECK(MPI_Reduce(&sumNode, 

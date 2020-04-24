@@ -22,6 +22,10 @@ $(addsuffix .o,$(OBJ)):$(addsuffix .cu,$(OBJ))
 $(addsuffix _mpi.o,$(OBJ)):$(addsuffix .cpp,$(OBJ))
 	$(CC) $(CC_FLAG) -c $^ -o $@
 
+run:
+	mpirun -np 4 ./simpleMPI
+
+
 clean:
 	rm -f $(OBJ)
 	rm -f *.o
