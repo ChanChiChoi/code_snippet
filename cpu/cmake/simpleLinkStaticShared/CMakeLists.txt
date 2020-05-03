@@ -33,3 +33,7 @@ set_target_properties(message-shared
                OUTPUT_NAME "message")
 
 target_link_libraries(hello message-static)
+
+#获取target的属性
+get_target_property(outval message-shared OUTPUT_NAME)
+message(STATUS "attention===: " ${outval})
