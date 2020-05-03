@@ -1,6 +1,8 @@
 mkdir -p build
 cd build
 cmake ..
+=============
+cmake -H. -Bbuild
 
 --------
 
