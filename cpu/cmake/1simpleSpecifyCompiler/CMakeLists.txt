@@ -16,3 +16,5 @@ if(CMAKE_C_COMPILER_LOADED)
   message(STATUS "Is the C from GNU? ${CMAKE_COMPILER_IS_GNUCC}")
   message(STATUS "THe C compiler version is: ${CMAKE_C_COMPILER_VERSION}")
 endif()
+
+message(STATUS "C++ compiler flags: ${CMAKE_CXX_FLAGS}")
