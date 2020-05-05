@@ -7,8 +7,9 @@ list(APPEND flags "-fPIC" "-Wall")
 list(APPEND flags "-Wextra" "-Wpedantic")
 
 # 虽然显示flags:-fPIC-Wall-Wextra-Wpedantic
-# 但是就是不能"-fPIC " 这样加空格
-message(STATUS "flags:" ${flags})
+# 变量的值放在双引号内和外 有区别
+message(STATUS "flags(outside):" ${flags})
+message(STATUS "flags(inside): ${flags}")
 
 add_library(display
           STATIC
