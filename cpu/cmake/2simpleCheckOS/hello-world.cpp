@@ -28,9 +28,16 @@ string hello1(){
 #endif
 }
 
+//即GCC在宏预处理阶段，有一条排外规则，
+//那就是若宏参数被用于字符串化或者与其它标签连接，则不会被替代！
+#define MAC(x) #x //将宏的参数进行字符串化
+#define MAC_WARP(x) MAC(x) 
 int
 main(){
   cout<<hello()<<endl;
   cout<<hello1()<<endl;
+#ifdef COMPILER_NAME
+  cout<<"compilername:" MAC_WARP(COMPILER_NAME)<<endl;
+#endif
   return EXIT_SUCCESS;
 }
