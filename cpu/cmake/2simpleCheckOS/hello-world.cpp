@@ -18,8 +18,19 @@ string hello(){
 #endif
 }
 
+string hello1(){
+#ifdef IS_INTEL_CXX_COMPILER
+  return string{"Hello Intel compiler"};
+#elif IS_GNU_CXX_COMPILER
+  return string{"Hello GNU compiler"};
+#else
+  return string{"Hello unknown compiler?"};
+#endif
+}
+
 int
 main(){
   cout<<hello()<<endl;
+  cout<<hello1()<<endl;
   return EXIT_SUCCESS;
 }

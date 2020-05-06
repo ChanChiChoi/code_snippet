@@ -19,3 +19,12 @@ else()
   message(STATUS "Configuring on/for ${CMAKE_SYSTEM_NAME}")
 endif()
 
+target_compile_definitions(helloWorld PUBLIC "COMPILER_NAME=${CMAKE_CXX_COMPILER_ID}")
+
+if(CMAKE_CXX_COMPILER_ID MATCHES Intel)
+  target_compile_definitions(helloWorld PUBLIC "IS_INTEL_CXX_COMPILER")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  target_compile_definitions(helloWorld PUBLIC "IS_GNU_CXX_COMPILER")
+endif()
