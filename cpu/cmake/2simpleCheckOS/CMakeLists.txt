@@ -1,14 +1,21 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(checkOS LANGUAGES NONE)
+project(checkOS LANGUAGES CXX)
+
+add_executable(helloWorld hello-world.cpp)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Configuring on/for Linux")
+  target_compile_definitions(helloWorld PUBLIC "IS_LINUX")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   message(STATUS "Configuring on/for macOS")
+  target_compile_definitions(helloWorld PUBLIC "IS_MACOS")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   message(STATUS "Configuring on/for Windows")
+  target_compile_definitions(helloWorld PUBLIC "IS_WINDOWS")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "AIX")
   message(STATUS "Configuring on/for IBM AIX")
+  target_compile_definitions(helloWorld PUBLIC "IS_IBM_AIX")
 else()
   message(STATUS "Configuring on/for ${CMAKE_SYSTEM_NAME}")
 endif()
+
