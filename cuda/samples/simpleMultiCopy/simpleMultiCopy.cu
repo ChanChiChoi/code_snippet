@@ -49,6 +49,10 @@ main(int argc, char *argv[]){
       <<" MP(s) x "<<_ConvertSMVer2Cores(prop.major, prop.minor)
       <<" (Cores/MP) = "<<_ConvertSMVer2Cores(prop.major, prop.minor)*prop.multiProcessorCount
       <<" (Cores)"<<endl;
+  cout<<"当前GPU是否支持在GPU执行kernel时候，同时执行一个CPU与GPU之间数据传输: "
+      <<(prop.deviceOverlap?"Yes":"NO")<<endl;
+  cout<<"当前GPU是否支持在GPU执行kernel时候，同时执行两个CPU与GPU之间数据传输: "
+      <<(prop.major>=2 && prop.asyncEngineCount>1?"Yes":"NO")<<endl;
 
   //小于32个核的需要缩小负载
   auto data1 = _ConvertSMVer2Cores(prop.major, prop.minor)*\
@@ -107,7 +111,8 @@ main(int argc, char *argv[]){
   cudaEventSynchronize(ed);
   float memcpy_h2d_time;
   cudaEventElapsedTime(&memcpy_h2d_time,st,ed);
-  cout<<"memcpy_h2d_time:"<<memcpy_h2d_time<<endl;
+  cout<<"memcpy_h2d_time:"<<memcpy_h2d_time<<" ms; "
+       <<(memsize*1e-6)/memcpy_h2d_time<<" GB/s"<<endl;
 
   //---d2h
   cudaEventRecord(st,0);
@@ -117,7 +122,8 @@ main(int argc, char *argv[]){
   cudaEventSynchronize(ed);
   float memcpy_d2h_time;
   cudaEventElapsedTime(&memcpy_d2h_time,st,ed);
-  cout<<"memcpy_d2h_time:"<<memcpy_d2h_time<<endl;
+  cout<<"memcpy_d2h_time:"<<memcpy_d2h_time<<" ms; "
+      <<(memsize*1e-6)/memcpy_d2h_time<<" GB/s"<<endl;
 
   //----kernel
   cudaEventRecord(st,0);
@@ -126,7 +132,8 @@ main(int argc, char *argv[]){
   cudaEventSynchronize(ed);
   float kernel_time;
   cudaEventElapsedTime(&kernel_time,st,ed);
-  cout<<"kernel run:"<<kernel_time<<endl;
+  cout<<"kernel run:"<<kernel_time<<" ms; "
+      <<(inner_reps*memsize*2e-6)/kernel_time<<" GB/s"<<endl;
   //--------
   
   
