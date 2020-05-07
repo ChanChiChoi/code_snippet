@@ -37,6 +37,7 @@ init(int *h_data_source, int *h_data_in[],int N, int memsize){
     memcpy(h_data_in[i], h_data_source, memsize);
 }
 
+
 void test(cudaEvent_t &st, cudaEvent_t &ed,
           int *d_data_in[], int *h_data_in[],
           int memsize,
@@ -44,7 +45,6 @@ void test(cudaEvent_t &st, cudaEvent_t &ed,
           dim3 grid, dim3 block,
           int N, int inner_reps
            ){
-
 
   // --------- h2d
   cudaEventRecord(st,0);
@@ -88,6 +88,15 @@ void test(cudaEvent_t &st, cudaEvent_t &ed,
       <<max(max(memcpy_h2d_time,memcpy_d2h_time),kernel_time)<<" ms"<<endl;  
   
 }
+
+float processWithStream(int nStream, cudaEvent_t &st, cudaEvent_t &ed){
+
+  int current_stream = 0;
+  float time;
+  cudaEventRecord(st,0);  
+  
+}
+
 
 int
 main(int argc, char *argv[]){
@@ -163,6 +172,11 @@ main(int argc, char *argv[]){
        grid, block,
        N, inner_reps);
 
+  int nreps = 10;
+  float serial_time = processWithStream(1);
+  float overlap_time = processWithStream(STREAM_COUNT);
+
+  
 
 
 }
