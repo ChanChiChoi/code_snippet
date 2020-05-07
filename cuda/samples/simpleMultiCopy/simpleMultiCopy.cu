@@ -37,6 +37,58 @@ init(int *h_data_source, int *h_data_in[],int N, int memsize){
     memcpy(h_data_in[i], h_data_source, memsize);
 }
 
+void test(cudaEvent_t &st, cudaEvent_t &ed,
+          int *d_data_in[], int *h_data_in[],
+          int memsize,
+          int *d_data_out[], int *h_data_out[],
+          dim3 grid, dim3 block,
+          int N, int inner_reps
+           ){
+
+
+  // --------- h2d
+  cudaEventRecord(st,0);
+  checkCudaErrors(cudaMemcpyAsync(d_data_in[0],h_data_in[0], memsize,
+                             cudaMemcpyHostToDevice, 0));
+  cudaEventRecord(ed,0);
+  cudaEventSynchronize(ed);
+  float memcpy_h2d_time;
+  cudaEventElapsedTime(&memcpy_h2d_time,st,ed);
+  cout<<"memcpy_h2d_time:"<<memcpy_h2d_time<<" ms; "
+       <<(memsize*1e-6)/memcpy_h2d_time<<" GB/s"<<endl;
+
+  //---d2h
+  cudaEventRecord(st,0);
+  checkCudaErrors(cudaMemcpyAsync(h_data_out[0],d_data_out[0],memsize,
+                                cudaMemcpyDeviceToHost,0));
+  cudaEventRecord(ed,0);
+  cudaEventSynchronize(ed);
+  float memcpy_d2h_time;
+  cudaEventElapsedTime(&memcpy_d2h_time,st,ed);
+  cout<<"memcpy_d2h_time:"<<memcpy_d2h_time<<" ms; "
+      <<(memsize*1e-6)/memcpy_d2h_time<<" GB/s"<<endl;
+
+  //----kernel
+  cudaEventRecord(st,0);
+  incKernel<<<grid, block>>>(d_data_out[0], d_data_in[0], N, inner_reps);
+  cudaEventRecord(ed,0);
+  cudaEventSynchronize(ed);
+  float kernel_time;
+  cudaEventElapsedTime(&kernel_time,st,ed);
+  cout<<"kernel run:"<<kernel_time<<" ms; "
+      <<(inner_reps*memsize*2e-6)/kernel_time<<" GB/s"<<endl;
+  //--------分析
+
+  cout<<"分析因为传输和重叠带来的加速增益"<<endl;
+  cout<<"完全不重叠，即传输，执行，回传:"
+      <<memcpy_h2d_time+ kernel_time+ memcpy_d2h_time<<" ms"<<endl;
+  cout<<"只允许重叠一个方向:"
+      <<max((memcpy_h2d_time+memcpy_d2h_time),kernel_time)<<" ms"<<endl;
+  cout<<"两个方向都能重叠:"
+      <<max(max(memcpy_h2d_time,memcpy_d2h_time),kernel_time)<<" ms"<<endl;  
+  
+}
+
 int
 main(int argc, char *argv[]){
 
@@ -103,39 +155,14 @@ main(int argc, char *argv[]){
 
   //暖核
   incKernel<<<grid, block>>>(d_data_out[0], d_data_in[0], N, inner_reps);
-  // --------- h2d
-  cudaEventRecord(st,0);
-  checkCudaErrors(cudaMemcpyAsync(d_data_in[0],h_data_in[0], memsize,
-                             cudaMemcpyHostToDevice, 0));
-  cudaEventRecord(ed,0);
-  cudaEventSynchronize(ed);
-  float memcpy_h2d_time;
-  cudaEventElapsedTime(&memcpy_h2d_time,st,ed);
-  cout<<"memcpy_h2d_time:"<<memcpy_h2d_time<<" ms; "
-       <<(memsize*1e-6)/memcpy_h2d_time<<" GB/s"<<endl;
 
-  //---d2h
-  cudaEventRecord(st,0);
-  checkCudaErrors(cudaMemcpyAsync(h_data_out[0],d_data_out[0],memsize,
-                                cudaMemcpyDeviceToHost,0));
-  cudaEventRecord(ed,0);
-  cudaEventSynchronize(ed);
-  float memcpy_d2h_time;
-  cudaEventElapsedTime(&memcpy_d2h_time,st,ed);
-  cout<<"memcpy_d2h_time:"<<memcpy_d2h_time<<" ms; "
-      <<(memsize*1e-6)/memcpy_d2h_time<<" GB/s"<<endl;
+  test(st, ed,
+       d_data_in, h_data_in,
+       memsize,
+       d_data_out, h_data_out,
+       grid, block,
+       N, inner_reps);
 
-  //----kernel
-  cudaEventRecord(st,0);
-  incKernel<<<grid, block>>>(d_data_out[0], d_data_in[0], N, inner_reps);
-  cudaEventRecord(ed,0);
-  cudaEventSynchronize(ed);
-  float kernel_time;
-  cudaEventElapsedTime(&kernel_time,st,ed);
-  cout<<"kernel run:"<<kernel_time<<" ms; "
-      <<(inner_reps*memsize*2e-6)/kernel_time<<" GB/s"<<endl;
-  //--------
-  
-  
-  
+
+
 }
