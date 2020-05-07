@@ -19,6 +19,7 @@ include(CMakePrintHelpers)
 cmake_print_variables(_status _hello_world)
 
 #查找pythnon库
+#设定全局c的标准
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -29,9 +30,13 @@ find_package(PythonLibs
              EXACT REQUIRED)
 
 add_executable(hello-embedded-python hello-embedded-python.c)
+#给目标增加头文件
+message(STATUS "PYTHON_INCLUDE_DIRS: ${PYTHON_INCLUDE_DIRS}")
 target_include_directories(hello-embedded-python
                            PRIVATE
                            ${PYTHON_INCLUDE_DIRS})
+#给目标增加库文件
+message(STATUS "PYTHON_LIBRARIES: ${PYTHON_LIBRARIES}")
 target_link_libraries(hello-embedded-python
                       PRIVATE
                       ${PYTHON_LIBRARIES})
