@@ -17,7 +17,7 @@ square(int *array, int arrayCount){
 }
 
 
-static double
+double
 reportPotentialOccupancy(void *kernel, int block, size_t dynamicSMem){
   int device;
   cudaDeviceProp prop;
@@ -40,7 +40,7 @@ reportPotentialOccupancy(void *kernel, int block, size_t dynamicSMem){
   return occupancy;
 }
 
-static int
+int
 launchConfig(int *array, int arrayCount, bool automatic){
   int block;
   int minGrid;
@@ -83,7 +83,7 @@ launchConfig(int *array, int arrayCount, bool automatic){
   
 }
 
-static int
+int
 test(bool automaticLaunchConfig, int const count = 1000000){
   int *array;
   int *dArray;
@@ -128,7 +128,7 @@ main(){
   }
   //-----------
   cout<<endl;
-  cout<<" [ Automic, occupancy-based configuration ]"<<endl;
+  cout<<"[ Automic, occupancy-based configuration ]"<<endl;
   status = test(true);
   if(status){
     cerr<<"Test Failed"<<endl;
