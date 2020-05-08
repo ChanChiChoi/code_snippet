@@ -89,11 +89,44 @@ void test(cudaEvent_t &st, cudaEvent_t &ed,
   
 }
 
-float processWithStream(int nStream, cudaEvent_t &st, cudaEvent_t &ed){
+float processWithStream(int nStream, cudaEvent_t &st, cudaEvent_t &ed,
+                        int nreps,cudaEvent_t cycleDone[],
+                        dim3 grid, dim3 block, cudaStream_t stream[],
+                        int*d_data_out[], int *d_data_in[],
+                        int N, int inner_reps, int memsize,
+                        int*h_data_in[], int *h_data_out[]){
 
   int current_stream = 0;
   float time;
   cudaEventRecord(st,0);  
+  for(int i=0; i<nreps; i++){
+    int next_stream = (current_stream+1)%nStream;
+    cudaEventSynchronize(cycleDone[next_stream]);
+
+    incKernel<<<grid,block,0,stream[current_stream]>>>(
+                                   d_data_out[current_stream],
+                                   d_data_in[current_stream],
+                                   N,
+                                   inner_reps );
+    checkCudaErrors(cudaMemcpyAsync(d_data_in[next_stream],
+                                    h_data_in[next_stream],
+                                    memsize,
+                                    cudaMemcpyHostToDevice,
+                                    stream[next_stream]));
+    checkCudaErrors(cudaMemcpyAsync(h_data_out[current_stream],
+                                    d_data_out[current_stream],
+                                    memsize,
+                                    cudaMemcpyDeviceToHost,
+                                    stream[current_stream]));
+    checkCudaErrors(cudaEventRecord(cycleDone[current_stream],
+                                    stream[current_stream]));
+    current_stream = next_stream;
+ 
+  }
+  cudaEventRecord(ed,0);
+  cudaDeviceSynchronize();
+  cudaEventElapsedTime(&time,st,ed);
+  return time;
   
 }
 
@@ -173,8 +206,44 @@ main(int argc, char *argv[]){
        N, inner_reps);
 
   int nreps = 10;
-  float serial_time = processWithStream(1);
-  float overlap_time = processWithStream(STREAM_COUNT);
+  float serial_time = processWithStream(1, st, ed,
+                   nreps,cycleDone,
+                   grid, block,stream,
+                   d_data_out, d_data_in,
+                   N, inner_reps,memsize,
+                   h_data_in, h_data_out);
+  float overlap_time = processWithStream(STREAM_COUNT, st, ed,
+                   nreps,cycleDone,
+                   grid, block,stream,
+                   d_data_out, d_data_in,
+                   N, inner_reps,memsize,
+                   h_data_in, h_data_out);
+  cout<<"==================="<<endl;
+  cout<<"一共运行:"<<nreps<<"次的平均测量时间"<<endl;
+  cout<<"完全序列化执行:"<<(serial_time/nreps)<<" ms"<<endl;
+  cout<<"使用:"<<STREAM_COUNT<<" 流重叠技术:"<<(overlap_time/nreps)<<" ms"<<endl;
+  cout<<"平均加速:"<<(serial_time-overlap_time)/nreps<<" ms"<<endl;
+  cout<<"==================="<<endl;
+  cout<<"数据吞吐上:"<<endl;
+  cout<<"完全序列化:"<<(nreps*(memsize*2e-6)/serial_time)<<" GB/s"<<endl;
+  cout<<"使用:"<<STREAM_COUNT<<" 流重叠技术:"<<(nreps*(memsize*2e-6)/overlap_time)<<" GB/s"<<endl;
+
+  free(h_data_source);
+  free(h_data_sink);
+
+  for(int i=0; i<STREAM_COUNT;i++){
+    cudaFreeHost(h_data_in[i]);
+    cudaFree(d_data_in[i]);
+
+    cudaFreeHost(h_data_out[i]);
+    cudaFree(d_data_out[i]);
+  
+    cudaStreamDestroy(stream[i]);
+    cudaEventDestroy(cycleDone[i]);
+  }
+  cudaEventDestroy(st);
+  cudaEventDestroy(ed);
+ 
 
   
 
