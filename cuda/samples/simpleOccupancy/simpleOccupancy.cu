@@ -65,6 +65,7 @@ launchConfig(int *array, int arrayCount, bool automatic){
                     ));
     cout<<"suggested block size: "<<block<<endl;
     cout<<"minimum grid size for maximum occupancy: "<<minGrid<<endl;
+    cout<<"dynamic mem:"<<dynamicSMemUsage<<endl;
   }else{
     block = manualBlockSize;
   }
