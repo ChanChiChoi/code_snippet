@@ -10,7 +10,6 @@ LD_PATH = -L/usr/local/cuda/lib64 -lcudart
 OBJ = simpleSeparateCompilation
 SRC = simpleDeviceLibrary simpleSeparateCompilation
 MID = $(addsuffix .o,${SRC})
-SRC1 = $(addsuffix .cu,${SRC})
 
 all:${OBJ}
 
