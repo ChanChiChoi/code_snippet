@@ -107,7 +107,7 @@ freeHostMemory(bool bPinGenericMem, int **pp_a, int **ppAligned_a, int nbytes){
 #if CUDART_VERSION >= 4000
   if(bPinGenericMem){
     checkCudaErrors(cudaHostUnregister(*ppAligned_a));
-    mumap(*pp_a, nbytes);
+    munmap(*pp_a, nbytes);
   }
   else
 #endif
