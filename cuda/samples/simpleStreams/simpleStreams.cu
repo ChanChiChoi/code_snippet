@@ -22,12 +22,21 @@ init_array(int *g_data, int *factor, int num_iter){
   }
 }
 
+ char const*  sDeviceSyncMethod[] = {
+ "cudaDeviceScheduleAuto",
+ "cudaDeviceScheduleSpin",
+ "cudaDeviceScheduleYield",
+ "INVALID",
+ "cudaDeviceScheduleBlockingSync",
+ NULL
+};
 
 void 
 check(int cuda_device, 
       bool &bPinGenericMem,
       float &scale_factor,
-      int n){
+      int n,
+      int device_sync_method){
 
   cudaDeviceProp prop;
   checkCudaErrors(cudaGetDeviceProperties(&prop,cuda_device));
@@ -61,6 +70,12 @@ check(int cuda_device,
   
   cout<<"> scale_factor = "<<1.0f/scale_factor<<endl;
   cout<<"> array_size = "<<n<<endl;
+
+  //-------------------
+  cout<<"> Using CPU/GPU Device Synchronization method:"<<sDeviceSyncMethod[device_sync_method]<<endl;
+  checkCudaErrors(cudaSetDeviceFlags(device_sync_method |\
+                                     (bPinGenericMem ? cudaDeviceMapHost : 0) 
+                                     ));
 }
 
 
@@ -135,7 +150,7 @@ main(int argc, char *argv[]){
 
   //就是page-locked memory是用linux的接口mmap 还是cuda封装的接口cudaMallocHost
   bool bPinGenericMem = true;
-  check(cuda_device, bPinGenericMem, scale_factor, n);
+  check(cuda_device, bPinGenericMem, scale_factor, n, device_sync_method);
   
   // 分配host 内存
   int c = 5; // 数组初始化的值
