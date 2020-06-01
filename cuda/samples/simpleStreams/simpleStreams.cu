@@ -173,7 +173,7 @@ main(int argc, char *argv[]){
   checkCudaErrors(cudaEventRecord(ed,0));
   checkCudaErrors(cudaEventSynchronize(ed));
   checkCudaErrors(cudaEventElapsedTime(&time_memcpy, st, ed));
-  cout<<"memcopy: "<<time_memcpy<<endl;
+  cout<<"memcopy: "<<time_memcpy<<" ms"<<endl;
 
   //计算kernel的时间
   threads = dim3(512);
@@ -183,7 +183,7 @@ main(int argc, char *argv[]){
   checkCudaErrors(cudaEventRecord(ed,0));
   checkCudaErrors(cudaEventSynchronize(ed));
   checkCudaErrors(cudaEventElapsedTime(&time_kernel, st, ed));
-  cout<<"kernel: "<<time_kernel<<endl;
+  cout<<"kernel: "<<time_kernel<<" ms"<<endl;
   
 //===========================================
   threads = dim3(512);
@@ -196,7 +196,7 @@ main(int argc, char *argv[]){
   checkCudaErrors(cudaEventRecord(ed,0));
   checkCudaErrors(cudaEventSynchronize(ed));
   checkCudaErrors(cudaEventElapsedTime(&elapsed_time, st, ed));
-  cout<<"不采用多流方式: "<<elapsed_time<<endl;
+  cout<<"不采用多流方式: "<<elapsed_time<<" ms"<<endl;
 
 //==========================================  
   threads = dim3(512);
@@ -218,7 +218,7 @@ main(int argc, char *argv[]){
   checkCudaErrors(cudaEventRecord(ed,0));
   checkCudaErrors(cudaEventSynchronize(ed));
   checkCudaErrors(cudaEventElapsedTime(&elapsed_time, st, ed));
-  cout<<"共 "<<nstreams<<" streams: "<<elapsed_time/nreps<<endl;
+  cout<<"共 "<<nstreams<<" streams: "<<elapsed_time/nreps<<" ms"<<endl;
 
   //----------------
   cout<<"--------------------"<<endl;
@@ -235,5 +235,7 @@ main(int argc, char *argv[]){
 
   checkCudaErrors(cudaFree(d_a));
   checkCudaErrors(cudaFree(d_c));
+
+  cout<<"PASSED !"<<endl;
   
 }
