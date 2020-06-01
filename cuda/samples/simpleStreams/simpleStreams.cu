@@ -71,7 +71,7 @@ check(int cuda_device,
   cout<<"> scale_factor = "<<1.0f/scale_factor<<endl;
   cout<<"> array_size = "<<n<<endl;
 
-  //-------------------
+  //-------------------??????
   cout<<"> Using CPU/GPU Device Synchronization method:"<<sDeviceSyncMethod[device_sync_method]<<endl;
   checkCudaErrors(cudaSetDeviceFlags(device_sync_method |\
                                      (bPinGenericMem ? cudaDeviceMapHost : 0) 
