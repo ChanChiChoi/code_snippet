@@ -142,6 +142,7 @@ main(int argc, char *argv[]){
   float elapsed_time, time_memcpy, time_kernel;
   float scale_factor = 1.0f;
 
+  //本程序中，device_sync_method可选0 1 2 3 4,其中3 为非法，对应sDeviceSyncMethod中选项
   int device_sync_method = cudaDeviceBlockingSync; //默认同步方式
   int niters=5;
   
