@@ -6,7 +6,7 @@ CC_FLAG = -std=c++11
 LD_PATH = -L/usr/local/cuda/lib64 -lcudart
 
 
-OBJ = simpleStreams
+OBJ = simpleTemplates
 
 
 all:$(OBJ)
