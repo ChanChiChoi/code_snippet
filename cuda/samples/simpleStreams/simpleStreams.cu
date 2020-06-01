@@ -128,7 +128,7 @@ main(int argc, char *argv[]){
   float scale_factor = 1.0f;
 
   int device_sync_method = cudaDeviceBlockingSync; //默认同步方式
-  int niters;
+  int niters=5;
   
   int cuda_device=0;
   checkCudaErrors(cudaSetDevice(cuda_device));
