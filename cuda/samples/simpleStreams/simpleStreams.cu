@@ -143,7 +143,8 @@ main(int argc, char *argv[]){
   float scale_factor = 1.0f;
 
   //本程序中，device_sync_method可选0 1 2 3 4,其中3 为非法，对应sDeviceSyncMethod中选项
-  int device_sync_method = cudaDeviceBlockingSync; //默认同步方式
+  int device_sync_method = cudaDeviceBlockingSync; //默认同步方式为4
+  //device_sync_method = 2;
   int niters=5;
   
   int cuda_device=0;
