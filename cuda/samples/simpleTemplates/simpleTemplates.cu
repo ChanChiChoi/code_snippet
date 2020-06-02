@@ -4,6 +4,7 @@
 #include<cstring>
 #include<cmath>
 #include<chrono>
+#include<fstream>
 
 #include<helper_cuda.h>
 #include<timer.h>
@@ -32,6 +33,7 @@
 
 using std::cout;
 using std::endl;
+using std::cerr;
 using std::chrono::system_clock;
 using std::chrono::milliseconds;
 using std::chrono::duration_cast;
@@ -57,6 +59,114 @@ testKernel(T *g_idata, T *g_odata){
   g_odata[tid] = sdata[tid];
 }
 
+//---------------------------
+template<typename T> void
+computeGold(T *ref, T *idata, unsigned int const len){
+  T const T_len = static_cast<T>(len); // 编译时刻转换
+  for(unsigned int i=0; i<len; i++)
+    ref[i] = idata[i]*T_len;
+}
+
+//----------------------------
+template<typename T, typename S> inline bool
+compareData(T const *ref, T const *data, unsigned int const len,
+           S const epsilon, float const threshold){
+
+    assert(epsilon >= 0);
+    bool result = true;
+    unsigned int error_count = 0;
+    for(unsigned int i=0; i<len; i++){
+      float diff = (float)ref[i] - (float)data[i];
+      bool comp = (diff <= epsilon) && (diff >= -epsilon);
+      result &= comp;
+      error_count += !comp;
+    }
+    if (threshold == 0.0f)
+      return result ? true: false;
+    else{
+      if(error_count)
+        printf("%4.2f(%%) of bytes mismatched (count=%d)\n",
+               (float)error_count*100/(float)len, error_count);
+      return (len*threshold > error_count)? true: false;
+    }
+}
+//-----------------------------
+template<typename T>
+class ArrayComparator{
+  public:
+    bool compare(T const *ref, T *data, unsigned int len){
+      fprintf(stderr,"Error: 没有为此类型实现的对比函数\n");
+      return false;
+    }
+};
+
+template<>
+class ArrayComparator<int>{
+  public:
+    bool compare(int const *ref, int *data, unsigned int len){
+      return compareData(ref, data, len, 0.15f, 0.0f);
+    }
+};
+
+template<>
+class ArrayComparator<float>{
+  public:
+    bool compare(float const *ref, float *data, unsigned int len){
+      return compareData(ref, data, len, 0.15f, 0.0f);
+    }
+};
+//--------------------------
+template<typename T, typename S> inline bool
+writeFile(char const *filename, T const *data, unsigned int len,
+          S const epsilon, bool verbose, bool append=false){
+  assert(nullptr != filename);
+  assert(nullptr != data);
+
+  std::fstream fh(filename, std::fstream::out| std::fstream::ate);
+  if(verbose)
+    cerr<<"writeFile: open file "<<filename<<" for write/append."<<endl;
+  if(!fh.good()){
+    return false;
+  }
+  fh<<"# "<<epsilon<<endl;
+  //write data
+  for(unsigned int i=0; (i<len)&&(fh.good()); i++)
+    fh<<data[i]<<' ';
+
+  if(!fh.good()){
+    if(verbose)
+     cerr<<"writeFile: writing file failed"<<endl;
+     return false;
+  }
+  fh<<endl;
+  return true;
+}
+//---------------------------
+template<typename T>
+class ArrayFileWriter{
+  public:
+    bool write(char const *filename, T *data, unsigned int len, float epsilon){
+       fprintf(stderr, "Error: 没有为此类型实现write 函数\n");
+       return false;
+    }
+};
+
+template<>
+class ArrayFileWriter<int>{
+  public:
+    bool write(char const *filename, int *data, unsigned int len, float epsilon){
+      return writeFile(filename, data, len, epsilon, false);
+    }
+};
+
+template<>
+class ArrayFileWriter<float>{
+  public:
+    bool write(char const *filename, float *data, unsigned int len, float epsilon){
+      return writeFile(filename, data, len, epsilon, false);
+    }
+};
+//----------------------------
 template<typename T> void
 runTest(int argc, char *argv[], int len, int g_TotalFailres){
   
@@ -93,6 +203,24 @@ runTest(int argc, char *argv[], int len, int g_TotalFailres){
   cout<<"take "<<duration_cast<milliseconds>(ed-st).count()<<" ms"<<endl;
 
   T *ref = (T*)malloc(mem_size);
+  computeGold<T>(ref, h_idata, num_threads);
+  ArrayComparator<T> comparator;
+  ArrayFileWriter<T> writer;
+
+  bool isRegression = false;
+  if(isRegression)
+    writer.write("./data/regression.dat", h_odata, num_threads, 0.0f);
+  else{
+    bool res = comparator.compare(ref, h_odata, num_threads);
+    cout<<"Compare "<<((1 == res) ? "OK": "MISMATCH")<<endl;
+    g_TotalFailres += (1 != res);
+  }
+
+  free(h_idata);
+  free(h_odata);
+  free(ref);
+  checkCudaErrors(cudaFree(d_idata));
+  checkCudaErrors(cudaFree(d_odata));
   
   
 }
