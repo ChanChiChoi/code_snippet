@@ -42,8 +42,15 @@ atomicKernel(int *atom_arr){
     atomicExch_system(&atom_arr[1],tid);
     atomicMax_system(&atom_arr[2],tid);
     atomicMin_system(&atom_arr[3],tid);
+
+    // eads the 32-bit word old located at the address address in global or shared memory,
+    // computes ((old >= val) ? 0 : (old+1)), and stores the result back to memory at 
+    // the same address. These three operations are performed in one atomic transaction. 
+    // The function returns old.
     atomicInc_system((unsigned int *)&atom_arr[4],17);
+    // (((old == 0) || (old > val)) ? val : (old-1) )
     atomicDec_system((unsigned int *)&atom_arr[5],137);
+    //  (old == compare ? val : old)
     atomicCAS_system(&atom_arr[6],tid-1,tid);
 
     atomicAnd_system(&atom_arr[7],2*tid+7);
