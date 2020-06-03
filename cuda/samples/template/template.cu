@@ -1,3 +1,4 @@
+// 这个例子就是个参照形式，没什么内容和知识点
 #include<cstdlib>
 #include<cstdio>
 #include<cstring>
