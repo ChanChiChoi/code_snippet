@@ -1,5 +1,6 @@
 NVCC = /usr/local/cuda/bin/nvcc
-NVCC_FLAGS = -g -G -Xcompiler -Wall -std=c++11 -arch sm_60 -Xcompiler -fopenmp
+NVCC_FLAGS = -g -G -Xcompiler -Wall -std=c++11 -arch sm_60 -Xcompiler -fopenmp -Xcompiler -pthread
+NVCC_EXTRA = -DUSE_PTHREADS
 INCLUDE_PATH = -I../common/inc
 CC = g++
 CC_FLAG = -std=c++11
@@ -12,7 +13,7 @@ OBJ = UnifiedMemoryStreams
 all:$(OBJ)
 
 ${OBJ}:%:%.cu
-	${NVCC} ${NVCC_FLAGS} ${INCLUDE_PATH} ${LD_PATH} $^ -o $@
+	${NVCC} ${NVCC_FLAGS} ${NVCC_EXTRA} ${INCLUDE_PATH} ${LD_PATH} $^ -o $@
 
 run:
 	 @./${OBJ}

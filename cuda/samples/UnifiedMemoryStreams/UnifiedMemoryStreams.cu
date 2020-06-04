@@ -93,7 +93,7 @@ gemv(int m, int n, T alpha, T *A, T *x, T beta, T *result){
 }
 
 #ifdef USE_PTHREADS
-void execute(void *inpArgs){
+void *execute(void *inpArgs){
   // 一个单独的线程，其中threadData中streams和handles都是整个数组
   threadData *dataPtr = (threadData*)inpArgs;
   cudaStream_t *stream = dataPtr->streams;
@@ -106,7 +106,8 @@ void execute(void *inpArgs){
     // 如果任务很小，就放到0号流中
     // 且用cpu操作，否则才用cublas
     // 一共4个线程，如果分到每个线程都小于100个任务，那么其实整体都在0号流中执行
-    cout<<"Task ["<<t.id<<"], thread ["<<tid<<"] executing on host ("<<t.size<<")"<<endl;
+    //cout<<"Task ["<<t.id<<"], thread ["<<tid<<"] executing on host ("<<t.size<<")"<<endl;
+    printf("Task [%02d], thread [%d] executing on host (%d)\n",t.id,tid,t.size);
     if(t.size < 100){
       // attach managed memory to a (dummy) stream to allow host access while the device is running
       checkCudaErrors(cudaStreamAttachMemAsync(stream[0], t.data, 0, cudaMemAttachHost));
@@ -130,13 +131,15 @@ void execute(void *inpArgs){
 
     }
   }
+  return nullptr;
 }
 #else
 template<typename T> void
 execute(Task<T> &t, cublasHandle_t *handle, cudaStream_t *stream, int tid){
 
-  cout<<"Task ["<<t.id<<"], thread ["<<tid<<"] executing on host ("<<t.size<<")"<<endl;
+  //cout<<"Task ["<<t.id<<"], thread ["<<tid<<"] executing on host ("<<t.size<<")"<<endl;
 
+  printf("Task [%02d], thread [%d] executing on host (%d)\n",t.id,tid,t.size);
   if(t.size<100){
     checkCudaErrors(cudaStreamAttachMemAsync(stream[0], t.data, 0, cudaMemAttachHost));
     checkCudaErrors(cudaStreamAttachMemAsync(stream[0], t.vector, 0, cudaMemAttachHost));
@@ -212,7 +215,7 @@ main(int argc, char *argv[]){
       // 最后一个接收所有剩下的任务
       if(i == nthreads - 1){
         InputToThreads[i].taskSize = (TaskList.size() / nthreads) + (TaskList.size()%nthreads);
-        InputToThreads[i].TaskListPtr = &TaskList[i*(TaskList.size()/nthreads)+(TaskList.size()%nthreads)]
+        InputToThreads[i].TaskListPtr = &TaskList[i*(TaskList.size()/nthreads)+(TaskList.size()%nthreads)];
       }else{
         InputToThreads[i].taskSize = (TaskList.size()/nthreads);
         InputToThreads[i].TaskListPtr = &TaskList[i*(TaskList.size()/nthreads)];
