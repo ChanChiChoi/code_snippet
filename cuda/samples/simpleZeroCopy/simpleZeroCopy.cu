@@ -84,6 +84,8 @@ main(int argc, char *argv[]){
       b[n] = rand()/(float)RAND_MAX;
    }
    // 获取GPU侧指向pinned的指针
+   // 在SM 2.0及以后都支持了UVA，也在CUDA 4.0之后，
+  // 可以直接不使用cudaHostGetDevicePointer
 #ifdef WITHOUT_UVA
   cout<<"USE cudaHostGetDevicePointer"<<endl;
   #if CUDART_VERSION >= 2020
