@@ -84,11 +84,18 @@ main(int argc, char *argv[]){
       b[n] = rand()/(float)RAND_MAX;
    }
    // 获取GPU侧指向pinned的指针
-#if CUDART_VERSION >= 2020
-   checkCudaErrors(cudaHostGetDevicePointer((void**)&d_a, (void*)a,0));
-   checkCudaErrors(cudaHostGetDevicePointer((void**)&d_b, (void*)b,0));
-   checkCudaErrors(cudaHostGetDevicePointer((void**)&d_c, (void*)c,0));
+#ifdef WITHOUT_UVA
+  cout<<"USE cudaHostGetDevicePointer"<<endl;
+  #if CUDART_VERSION >= 2020
+     checkCudaErrors(cudaHostGetDevicePointer((void**)&d_a, (void*)a,0));
+     checkCudaErrors(cudaHostGetDevicePointer((void**)&d_b, (void*)b,0));
+     checkCudaErrors(cudaHostGetDevicePointer((void**)&d_c, (void*)c,0));
+  #endif
+#else
+   cout<<"DONOT USE cudaHostGetDevicePointer"<<endl;
+   d_a = a; d_b = b; d_c = c;
 #endif
+
   
    cout<<"> vectorAddGPU kernel will add vectors using mapped CPU memory"<<endl;
    dim3 block(256);

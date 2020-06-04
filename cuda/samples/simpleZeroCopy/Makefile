@@ -1,5 +1,7 @@
 NVCC = /usr/local/cuda/bin/nvcc
 NVCC_FLAGS = -g -G -Xcompiler -Wall -std=c++11
+#NVCC_EXTRA = -DWITHOUT_UVA
+NVCC_EXTRA = 
 INCLUDE_PATH = -I../common/inc
 CC = g++
 CC_FLAG = -std=c++11
@@ -12,7 +14,7 @@ OBJ = simpleZeroCopy
 all:$(OBJ)
 
 ${OBJ}:%:%.cu
-	${NVCC} ${NVCC_FLAGS} ${INCLUDE_PATH} $^ -o $@
+	${NVCC} ${NVCC_FLAGS} ${NVCC_EXTRA} ${INCLUDE_PATH} $^ -o $@
 
 run:
 	 @./${OBJ}
