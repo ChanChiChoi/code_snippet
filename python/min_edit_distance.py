@@ -1,3 +1,6 @@
+'''
+动态规划的路子实现最小编辑距离
+'''
 import numpy as np
 
 def del_cost(char):
