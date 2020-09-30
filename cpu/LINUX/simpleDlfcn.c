@@ -1,3 +1,4 @@
+// https://www.cnblogs.com/youxin/p/5109520.html
 #include<stdio.h>
 #include<stdlib.h>
 #include<dlfcn.h>
@@ -14,7 +15,7 @@ int main(int argc, char **argv){
     exit(1);
   }
 
-  dlerror();
+  dlerror();//这里调用是为了清空错误信息
 
   round = dlsym(handle,"round");
   if((error = dlerror()) != NULL){
